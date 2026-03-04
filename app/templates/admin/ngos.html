@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Manage NGOs – Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="fas fa-building me-2 text-primary"></i>NGO Management</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Dashboard
+        </a>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr>
+                    <th>Name</th><th>Organisation</th><th>Email</th><th>Reg. Number</th><th>Status</th><th>Joined</th><th>Actions</th>
+                </tr></thead>
+                <tbody>
+                {% for ngo in ngos %}
+                <tr>
+                    <td><strong>{{ ngo.name }}</strong></td>
+                    <td>{{ ngo.organization_name or '—' }}</td>
+                    <td class="small">{{ ngo.email }}</td>
+                    <td class="small text-muted">{{ ngo.registration_number or '—' }}</td>
+                    <td>
+                        {% if not ngo.is_active %}
+                            <span class="badge bg-danger">Deactivated</span>
+                        {% elif ngo.is_verified %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ ngo.created_at.strftime('%d %b %Y') }}</td>
+                    <td>
+                        {% if not ngo.is_verified and ngo.is_active %}
+                        <form method="POST" action="{{ url_for('admin.verify_ngo', ngo_id=ngo.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button name="action" value="approve" class="btn btn-success btn-sm me-1">
+                                <i class="fas fa-check"></i> Verify
+                            </button>
+                            <button name="action" value="reject" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Deactivate this NGO?')">
+                                <i class="fas fa-ban"></i> Reject
+                            </button>
+                        </form>
+                        {% elif ngo.is_verified %}
+                        <span class="text-muted small">✓ Verified</span>
+                        {% else %}
+                        <span class="text-danger small">Deactivated</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not ngos %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No NGOs registered yet.</td></tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

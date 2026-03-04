@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <h2 class="fw-bold mb-4"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Admin Dashboard</h2>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="fs-3 fw-bold text-primary">{{ stats.total_ngos }}</div>
+                <div class="small text-muted">Total NGOs</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100 border-warning border-2">
+                <div class="fs-3 fw-bold text-warning">{{ stats.pending_ngos }}</div>
+                <div class="small text-muted">Pending NGOs</div>
+                {% if stats.pending_ngos > 0 %}
+                <a href="{{ url_for('admin.ngos') }}" class="btn btn-warning btn-sm mt-2">Review</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100 {% if stats.pending_donations > 0 %}border-danger border-2{% endif %}">
+                <div class="fs-3 fw-bold text-danger">{{ stats.pending_donations }}</div>
+                <div class="small text-muted">Pending Donations</div>
+                {% if stats.pending_donations > 0 %}
+                <a href="{{ url_for('admin.donations') }}" class="btn btn-danger btn-sm mt-2">Review</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100 {% if stats.pending_expenses > 0 %}border-warning border-2{% endif %}">
+                <div class="fs-3 fw-bold text-warning">{{ stats.pending_expenses }}</div>
+                <div class="small text-muted">Pending Expenses</div>
+                {% if stats.pending_expenses > 0 %}
+                <a href="{{ url_for('admin.expenses') }}" class="btn btn-warning btn-sm mt-2">Review</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="fs-3 fw-bold text-success">{{ stats.active_campaigns }}</div>
+                <div class="small text-muted">Active Campaigns</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="fs-4 fw-bold text-info">₹{{ "{:,.0f}".format(stats.total_approved) }}</div>
+                <div class="small text-muted">Total Approved</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="{{ url_for('admin.ngos') }}" class="btn btn-outline-primary">
+            <i class="fas fa-building me-2"></i>Manage NGOs
+        </a>
+        <a href="{{ url_for('admin.donations') }}" class="btn btn-outline-danger">
+            <i class="fas fa-heart me-2"></i>Review Donations
+        </a>
+        <a href="{{ url_for('admin.expenses') }}" class="btn btn-outline-warning">
+            <i class="fas fa-receipt me-2"></i>Review Expenses
+        </a>
+        <a href="{{ url_for('admin.suspicious') }}" class="btn btn-outline-dark">
+            <i class="fas fa-exclamation-triangle me-2"></i>Suspicious Activity
+        </a>
+    </div>
+
+    <!-- Recent Activity Log -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold pt-4 pb-3">
+            <i class="fas fa-history me-2 text-secondary"></i>Recent Activity
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0">
+                <thead class="table-light"><tr>
+                    <th>User</th><th>Role</th><th>Action</th><th>Description</th><th>IP</th><th>Time</th>
+                </tr></thead>
+                <tbody>
+                {% for a in recent_activity %}
+                <tr>
+                    <td>{{ a.user_name or 'System' }}</td>
+                    <td>{% if a.role %}<span class="badge bg-secondary">{{ a.role }}</span>{% endif %}</td>
+                    <td><code class="small">{{ a.action }}</code></td>
+                    <td class="text-muted small">{{ a.description }}</td>
+                    <td class="small text-muted">{{ a.ip_address }}</td>
+                    <td class="small text-muted">{{ a.created_at.strftime('%d %b %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

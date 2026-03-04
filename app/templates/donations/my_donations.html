@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}My Donations – DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">My Donations</h2>
+    {% if donations %}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr>
+                    <th>Campaign</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Proof</th>
+                </tr></thead>
+                <tbody>
+                {% for d in donations %}
+                <tr>
+                    <td><strong>{{ d.campaign_title }}</strong></td>
+                    <td class="fw-bold text-success">₹{{ "{:,.0f}".format(d.amount) }}</td>
+                    <td>{{ d.payment_method.replace('_',' ').title() }}</td>
+                    <td>
+                        <span class="badge bg-{% if d.status=='approved' %}success{% elif d.status=='rejected' %}danger{% else %}warning text-dark{% endif %}">
+                            {% if d.status=='approved' %}<i class="fas fa-check me-1"></i>{% elif d.status=='rejected' %}<i class="fas fa-times me-1"></i>{% else %}<i class="fas fa-clock me-1"></i>{% endif %}
+                            {{ d.status.title() }}
+                        </span>
+                        {% if d.admin_note %}<br><small class="text-muted">{{ d.admin_note }}</small>{% endif %}
+                    </td>
+                    <td class="small text-muted">{{ d.created_at.strftime('%d %b %Y') }}</td>
+                    <td>
+                        {% if d.payment_proof %}
+                        <a href="{{ url_for('static', filename='uploads/payment_proofs/' + d.payment_proof) }}"
+                           target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-file me-1"></i>View
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="fas fa-heart fa-3x mb-3 opacity-30"></i>
+        <p>No donations yet. <a href="{{ url_for('campaigns.list_campaigns') }}">Start giving today!</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

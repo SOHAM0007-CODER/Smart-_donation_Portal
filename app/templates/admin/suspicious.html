@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Suspicious Activity – Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <h2 class="fw-bold mb-4"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Suspicious Activity Monitor</h2>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold pt-4 pb-3 border-0">
+                    <i class="fas fa-network-wired me-2 text-danger"></i>High-Frequency IPs (Last 24h)
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light"><tr>
+                            <th>IP Address</th><th>Donation Submissions</th><th>Last Seen</th>
+                        </tr></thead>
+                        <tbody>
+                        {% for ip in suspicious_ips %}
+                        <tr class="{% if ip.cnt >= 5 %}table-danger{% elif ip.cnt >= 3 %}table-warning{% endif %}">
+                            <td><code>{{ ip.ip_address }}</code></td>
+                            <td><span class="badge bg-danger">{{ ip.cnt }}</span></td>
+                            <td class="small text-muted">{{ ip.last_seen.strftime('%d %b %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not suspicious_ips %}
+                        <tr><td colspan="3" class="text-center text-muted py-4">No suspicious IPs detected.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold pt-4 pb-3 border-0">
+                    <i class="fas fa-money-bill-wave me-2 text-warning"></i>Unusually Large Pending Donations
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light"><tr>
+                            <th>Donor</th><th>Campaign</th><th>Amount</th><th>Date</th>
+                        </tr></thead>
+                        <tbody>
+                        {% for d in large_donations %}
+                        <tr class="table-warning">
+                            <td>{{ d.donor_name }}</td>
+                            <td class="small">{{ d.campaign_title }}</td>
+                            <td class="fw-bold">₹{{ "{:,.0f}".format(d.amount) }}</td>
+                            <td class="small text-muted">{{ d.created_at.strftime('%d %b %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not large_donations %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No unusual donations detected.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

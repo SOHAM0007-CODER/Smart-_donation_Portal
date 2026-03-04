@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Log Expense – DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h2 class="fw-bold mb-4">Log an Expense</h2>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.campaign_id.label(class="form-label fw-semibold") }}
+                            {{ form.campaign_id(class="form-select") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Expense title") }}
+                            {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form.amount.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), placeholder="0.00") }}
+                                </div>
+                                {% for e in form.amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.category.label(class="form-label fw-semibold") }}
+                                {{ form.category(class="form-select") }}
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form.expense_date.label(class="form-label fw-semibold") }}
+                                {{ form.expense_date(class="form-control", type="date") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.vendor_name.label(class="form-label fw-semibold") }}
+                                {{ form.vendor_name(class="form-control", placeholder="Vendor or payee name") }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control", rows=3, placeholder="Describe this expense…") }}
+                        </div>
+                        <div class="mb-4">
+                            {{ form.proof_document.label(class="form-label fw-semibold") }}
+                            {{ form.proof_document(class="form-control" + (" is-invalid" if form.proof_document.errors else "")) }}
+                            <div class="form-text">Upload invoice, receipt, or bill (JPG/PNG/PDF, max 10 MB).</div>
+                            {% for e in form.proof_document.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold">
+                            <i class="fas fa-receipt me-2"></i>Submit Expense for Approval
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

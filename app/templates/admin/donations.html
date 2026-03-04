@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Review Donations – Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="fas fa-heart me-2 text-danger"></i>Donation Review</h2>
+        <div class="btn-group">
+            <a href="?status=pending" class="btn btn-sm {% if status=='pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">Pending</a>
+            <a href="?status=approved" class="btn btn-sm {% if status=='approved' %}btn-success{% else %}btn-outline-success{% endif %}">Approved</a>
+            <a href="?status=rejected" class="btn btn-sm {% if status=='rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">Rejected</a>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr>
+                    <th>Donor</th><th>Campaign</th><th>Amount</th><th>Method</th><th>Proof</th><th>Date</th>
+                    {% if status=='pending' %}<th>Action</th>{% else %}<th>Note</th>{% endif %}
+                </tr></thead>
+                <tbody>
+                {% for d in donations %}
+                <tr>
+                    <td><strong>{{ d.donor_name }}</strong></td>
+                    <td>{{ d.campaign_title }}</td>
+                    <td class="fw-bold text-success">₹{{ "{:,.0f}".format(d.amount) }}</td>
+                    <td>{{ d.payment_method.replace('_',' ').title() }}</td>
+                    <td>
+                        {% if d.payment_proof %}
+                        <a href="{{ url_for('static', filename='uploads/payment_proofs/' + d.payment_proof) }}"
+                           target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View Proof
+                        </a>
+                        {% else %}<span class="text-muted">—</span>{% endif %}
+                    </td>
+                    <td class="small text-muted">{{ d.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                    <td>
+                        {% if status=='pending' %}
+                        <form method="POST" action="{{ url_for('admin.donation_action', donation_id=d.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="d-flex gap-1 align-items-center">
+                                <input type="text" name="admin_note" class="form-control form-control-sm" placeholder="Note…" style="width:140px;">
+                                <button name="action" value="approve" class="btn btn-success btn-sm">✓</button>
+                                <button name="action" value="reject" class="btn btn-danger btn-sm">✗</button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <span class="small text-muted">{{ d.admin_note or '—' }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not donations %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No donations with status "{{ status }}".</td></tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

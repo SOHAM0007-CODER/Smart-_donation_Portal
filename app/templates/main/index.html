@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Home – Smart Donation Portal{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section text-white text-center py-5">
+    <div class="container py-4">
+        <h1 class="display-4 fw-bold mb-3">Donate With Confidence</h1>
+        <p class="lead mb-4">Every donation tracked. Every expense verified. 100% transparent NGO funding.</p>
+        <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-light btn-lg px-5 me-2">
+            <i class="fas fa-search me-2"></i>Explore Campaigns
+        </a>
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-5">
+            <i class="fas fa-user-plus me-2"></i>Join Now
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="py-4 bg-white shadow-sm">
+    <div class="container">
+        <div class="row text-center g-3">
+            <div class="col-6 col-md-3">
+                <div class="stat-card p-3">
+                    <div class="stat-number text-primary">{{ stats.active_campaigns }}</div>
+                    <div class="stat-label">Active Campaigns</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card p-3">
+                    <div class="stat-number text-success">₹{{ "{:,.0f}".format(stats.total_donated) }}</div>
+                    <div class="stat-label">Total Donated</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card p-3">
+                    <div class="stat-number text-warning">{{ stats.total_donors }}</div>
+                    <div class="stat-label">Generous Donors</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card p-3">
+                    <div class="stat-number text-info">{{ stats.verified_ngos }}</div>
+                    <div class="stat-label">Verified NGOs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Campaigns -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-4 text-center">Featured Campaigns</h2>
+        {% if featured %}
+        <div class="row g-4">
+            {% for c in featured %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card campaign-card h-100 shadow-sm border-0">
+                    {% if c.image %}
+                    <img src="{{ url_for('static', filename='uploads/campaign_images/' + c.image) }}"
+                         class="card-img-top" style="height:180px;object-fit:cover;" alt="">
+                    {% else %}
+                    <div class="campaign-placeholder d-flex align-items-center justify-content-center"
+                         style="height:180px;background:linear-gradient(135deg,#667eea,#764ba2);">
+                        <i class="fas fa-heart fa-3x text-white opacity-50"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary-subtle text-primary">{{ c.category.replace('_',' ').title() }}</span>
+                            {% if c.is_verified %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title fw-semibold">{{ c.title }}</h5>
+                        <p class="text-muted small mb-2">by {{ c.organization_name }}</p>
+                        <p class="card-text small text-secondary">{{ c.description[:100] }}…</p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>₹{{ "{:,.0f}".format(c.current_amount) }} raised</span>
+                            <span>{{ c.pct or 0 }}%</span>
+                        </div>
+                        <div class="progress mb-3" style="height:8px;">
+                            <div class="progress-bar bg-success" style="width:{{ c.pct or 0 }}%"></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('campaigns.detail', campaign_id=c.id) }}"
+                               class="btn btn-outline-primary btn-sm flex-fill">View</a>
+                            {% if current_user.is_authenticated and current_user.is_donor() %}
+                            <a href="{{ url_for('donations.donate', campaign_id=c.id) }}"
+                               class="btn btn-primary btn-sm flex-fill">Donate</a>
+                            {% endif %}
+                            <a href="{{ url_for('main.transparency', campaign_id=c.id) }}"
+                               class="btn btn-outline-success btn-sm" title="Transparency Report">
+                                <i class="fas fa-chart-bar"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-outline-primary px-4">
+                View All Campaigns <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-seedling fa-3x mb-3 text-success opacity-50"></i>
+            <p>No active campaigns yet. Be the first NGO to start one!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-5">How It Works</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="how-card p-4">
+                    <div class="how-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                        <i class="fas fa-search fa-lg"></i>
+                    </div>
+                    <h5 class="fw-semibold">1. Browse Campaigns</h5>
+                    <p class="text-muted small">Explore verified NGO campaigns across multiple categories.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="how-card p-4">
+                    <div class="how-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                        <i class="fas fa-upload fa-lg"></i>
+                    </div>
+                    <h5 class="fw-semibold">2. Donate & Upload Proof</h5>
+                    <p class="text-muted small">Make your payment and upload the receipt. Admin verifies it.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="how-card p-4">
+                    <div class="how-icon bg-warning text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                        <i class="fas fa-chart-pie fa-lg"></i>
+                    </div>
+                    <h5 class="fw-semibold">3. Track Impact</h5>
+                    <p class="text-muted small">View the transparency dashboard — every rupee accounted for.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

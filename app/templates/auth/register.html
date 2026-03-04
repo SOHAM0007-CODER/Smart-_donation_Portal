@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Register – DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="fw-bold text-center mb-1">Create Account</h3>
+                    <p class="text-center text-muted small mb-4">Join the transparency movement</p>
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        <!-- Role Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">I am a…</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="role" id="role_donor" value="donor" checked>
+                                    <label class="btn btn-outline-primary w-100 py-3" for="role_donor">
+                                        <i class="fas fa-heart d-block mb-1 fs-4"></i>Donor
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="role" id="role_ngo" value="ngo">
+                                    <label class="btn btn-outline-success w-100 py-3" for="role_ngo">
+                                        <i class="fas fa-building d-block mb-1 fs-4"></i>NGO / Org
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-semibold") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Your full name") }}
+                            {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="you@email.com") }}
+                            {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.phone.label(class="form-label fw-semibold") }}
+                            {{ form.phone(class="form-control", placeholder="+91 9999999999") }}
+                        </div>
+
+                        <!-- NGO-only fields -->
+                        <div id="ngo-fields" style="display:none;">
+                            <div class="mb-3">
+                                {{ form.organization_name.label(class="form-label fw-semibold") }}
+                                {{ form.organization_name(class="form-control", placeholder="e.g. Help India Foundation") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.registration_number.label(class="form-label fw-semibold") }}
+                                {{ form.registration_number(class="form-control", placeholder="NGO registration number") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.address.label(class="form-label fw-semibold") }}
+                                {{ form.address(class="form-control", rows=2, placeholder="Organisation address") }}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                {{ form.password.label(class="form-label fw-semibold") }}
+                                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Min 8 chars") }}
+                                {% for e in form.password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="col-6">
+                                {{ form.confirm_password.label(class="form-label fw-semibold") }}
+                                {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Repeat password") }}
+                                {% for e in form.confirm_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">Create Account</button>
+                    </form>
+                    <hr>
+                    <p class="text-center text-muted small mb-0">
+                        Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.querySelectorAll('input[name="role"]').forEach(r => {
+    r.addEventListener('change', () => {
+        document.getElementById('ngo-fields').style.display =
+            r.value === 'ngo' && r.checked ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+/* ── Smart Donation Portal – Main Stylesheet ── */
+
+:root {
+    --primary: #0d6efd;
+    --success: #198754;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f8f9fa;
+    color: #333;
+}
+
+/* ── Hero ─────────────────────────────────────── */
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 40%, #6610f2 100%);
+    padding: 80px 0;
+}
+
+/* ── Stat Cards ───────────────────────────────── */
+.stat-card {
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    transition: transform .2s;
+}
+.stat-card:hover { transform: translateY(-3px); }
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.stat-label {
+    font-size: .8rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+/* ── Campaign Cards ───────────────────────────── */
+.campaign-card {
+    border-radius: 14px;
+    transition: transform .2s, box-shadow .2s;
+    overflow: hidden;
+}
+.campaign-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,.12) !important;
+}
+
+/* ── How-it-works ─────────────────────────────── */
+.how-card {
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+/* ── Progress bars ────────────────────────────── */
+.progress { background-color: #e9ecef; }
+.progress-bar { transition: width .8s ease; }
+
+/* ── Timeline ─────────────────────────────────── */
+.timeline-item {
+    border-left: 2px solid #e9ecef;
+    padding-left: 12px;
+    margin-left: 6px;
+}
+.timeline-dot { margin-left: -22px; }
+
+/* ── Tables ───────────────────────────────────── */
+.table thead th {
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #495057;
+}
+.table-hover tbody tr:hover { background-color: #f0f4ff; }
+
+/* ── Navbar ───────────────────────────────────── */
+.navbar-brand { letter-spacing: .5px; }
+.navbar .badge { font-size: .65rem; }
+
+/* ── Alerts ───────────────────────────────────── */
+.alert { border-radius: 10px; border: none; }
+
+/* ── Buttons ──────────────────────────────────── */
+.btn { border-radius: 8px; }
+.btn-primary { background: linear-gradient(135deg, #0d6efd, #0a58ca); border: none; }
+.btn-primary:hover { background: linear-gradient(135deg, #0a58ca, #084298); }
+
+/* ── Cards ────────────────────────────────────── */
+.card { border-radius: 14px; }
+.card-header { border-radius: 14px 14px 0 0 !important; }
+
+/* ── Badges ───────────────────────────────────── */
+.badge { border-radius: 6px; font-weight: 500; }
+.bg-primary-subtle { background-color: #cfe2ff !important; }
+.bg-success-subtle { background-color: #d1e7dd !important; }
+.bg-warning-subtle { background-color: #fff3cd !important; }
+
+/* ── File Upload ──────────────────────────────── */
+input[type="file"].form-control {
+    cursor: pointer;
+    background: #f8f9fa;
+}
+input[type="file"].form-control:hover { background: #e9ecef; }
+
+/* ── Footer ───────────────────────────────────── */
+footer { margin-top: auto; }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 576px) {
+    .hero-section { padding: 50px 0; }
+    .hero-section h1 { font-size: 1.8rem; }
+    .stat-number { font-size: 1.5rem; }
+}

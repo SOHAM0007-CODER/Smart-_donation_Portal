@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Campaigns – DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Active Campaigns</h2>
+        {% if current_user.is_authenticated and current_user.is_ngo() and current_user.is_verified %}
+        <a href="{{ url_for('campaigns.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Campaign
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <form class="row g-2 mb-4" method="GET">
+        <div class="col-md-6">
+            <input type="text" name="q" class="form-control" placeholder="Search campaigns…" value="{{ search }}">
+        </div>
+        <div class="col-md-4">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for cat in ['education','health','environment','disaster_relief','poverty','animal_welfare','other'] %}
+                <option value="{{ cat }}" {% if category==cat %}selected{% endif %}>{{ cat.replace('_',' ').title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    {% if campaigns %}
+    <div class="row g-4">
+        {% for c in campaigns %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card campaign-card h-100 shadow-sm border-0">
+                {% if c.image %}
+                <img src="{{ url_for('static', filename='uploads/campaign_images/' + c.image) }}"
+                     class="card-img-top" style="height:180px;object-fit:cover;" alt="">
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center"
+                     style="height:180px;background:linear-gradient(135deg,#667eea,#764ba2);">
+                    <i class="fas fa-heart fa-3x text-white opacity-50"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-primary-subtle text-primary">{{ c.category.replace('_',' ').title() }}</span>
+                        {% if c.is_verified %}<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>{% endif %}
+                    </div>
+                    <h5 class="card-title fw-semibold">{{ c.title }}</h5>
+                    <p class="text-muted small">by {{ c.organization_name }}</p>
+                    <p class="card-text small text-secondary">{{ c.description[:120] }}…</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3 px-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>₹{{ "{:,.0f}".format(c.current_amount) }} raised</span>
+                        <span>{{ c.pct or 0 }}%</span>
+                    </div>
+                    <div class="progress mb-3" style="height:8px;">
+                        <div class="progress-bar bg-success" style="width:{{ c.pct or 0 }}%"></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('campaigns.detail', campaign_id=c.id) }}"
+                           class="btn btn-outline-primary btn-sm flex-fill">View</a>
+                        {% if current_user.is_authenticated and current_user.is_donor() %}
+                        <a href="{{ url_for('donations.donate', campaign_id=c.id) }}"
+                           class="btn btn-primary btn-sm flex-fill">Donate</a>
+                        {% endif %}
+                        <a href="{{ url_for('main.transparency', campaign_id=c.id) }}"
+                           class="btn btn-outline-success btn-sm" title="Transparency"><i class="fas fa-chart-bar"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="fas fa-search fa-3x mb-3 opacity-30"></i>
+        <p>No campaigns found. Try a different search.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

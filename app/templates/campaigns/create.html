@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{% if edit %}Edit{% else %}Create{% endif %} Campaign – DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h2 class="fw-bold mb-4">{% if edit %}Edit Campaign{% else %}Create New Campaign{% endif %}</h2>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Campaign title") }}
+                            {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=5, placeholder="Describe your campaign…") }}
+                            {% for e in form.description.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form.category.label(class="form-label fw-semibold") }}
+                                {{ form.category(class="form-select") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.target_amount.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.target_amount(class="form-control" + (" is-invalid" if form.target_amount.errors else ""), placeholder="50000") }}
+                                </div>
+                                {% for e in form.target_amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form.start_date.label(class="form-label fw-semibold") }}
+                                {{ form.start_date(class="form-control", type="date") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.end_date.label(class="form-label fw-semibold") }}
+                                {{ form.end_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            {{ form.image.label(class="form-label fw-semibold") }}
+                            {{ form.image(class="form-control") }}
+                            <div class="form-text">Optional. JPG/PNG/GIF, max 10 MB.</div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-4">
+                                {% if edit %}Update Campaign{% else %}Create Campaign{% endif %}
+                            </button>
+                            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

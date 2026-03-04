@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Transparency – {{ campaign.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{{ url_for('campaigns.detail', campaign_id=campaign.id) }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="fw-bold mb-0">{{ campaign.title }}</h2>
+            <span class="text-muted small">by {{ campaign.organization_name }}</span>
+            {% if campaign.is_verified %}
+            <span class="badge bg-success ms-2"><i class="fas fa-shield-alt me-1"></i>Verified NGO</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Financial Summary Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div class="fs-4 fw-bold text-primary">₹{{ "{:,.0f}".format(campaign.current_amount) }}</div>
+                <div class="small text-muted">Total Collected</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div class="fs-4 fw-bold text-danger">₹{{ "{:,.0f}".format(campaign.total_expenses) }}</div>
+                <div class="small text-muted">Total Spent</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div class="fs-4 fw-bold text-success">₹{{ "{:,.0f}".format([remaining, 0]|max) }}</div>
+                <div class="small text-muted">Remaining Balance</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div class="fs-4 fw-bold text-info">{{ pct }}%</div>
+                <div class="small text-muted">Goal Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="card border-0 shadow-sm mb-5 p-4">
+        <h5 class="fw-semibold mb-3">Fundraising Progress</h5>
+        <div class="d-flex justify-content-between mb-2 small text-muted">
+            <span>₹{{ "{:,.0f}".format(campaign.current_amount) }} raised</span>
+            <span>Goal: ₹{{ "{:,.0f}".format(campaign.target_amount) }}</span>
+        </div>
+        <div class="progress mb-2" style="height:20px;border-radius:10px;">
+            <div class="progress-bar bg-gradient bg-success fw-bold"
+                 style="width:{{ pct }}%;border-radius:10px;">{{ pct }}%</div>
+        </div>
+        <!-- Expense overlay bar -->
+        {% if campaign.current_amount > 0 %}
+        <div class="mt-2">
+            <small class="text-muted">Expense utilisation: </small>
+            <div class="progress" style="height:8px;border-radius:4px;">
+                {% set exp_pct = ((campaign.total_expenses / campaign.current_amount) * 100)|round(1) if campaign.current_amount > 0 else 0 %}
+                <div class="progress-bar bg-danger" style="width:{{ [exp_pct,100]|min }}%;border-radius:4px;"></div>
+            </div>
+            <small class="text-muted">{{ exp_pct }}% of collected amount spent</small>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <!-- Donor List -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                    <i class="fas fa-heart text-danger me-2"></i>Donors ({{ donations|length }})
+                </div>
+                <div class="card-body px-4 pt-0" style="max-height:400px;overflow-y:auto;">
+                    {% if donations %}
+                    <table class="table table-sm table-hover align-middle">
+                        <thead class="table-light sticky-top"><tr>
+                            <th>Donor</th><th>Amount</th><th>Date</th>
+                        </tr></thead>
+                        <tbody>
+                        {% for d in donations %}
+                        <tr>
+                            <td>
+                                {% if d.is_anonymous %}
+                                <span class="text-muted"><i class="fas fa-user-secret me-1"></i>Anonymous</span>
+                                {% else %}
+                                <i class="fas fa-user me-1 text-primary"></i>{{ d.donor_name }}
+                                {% endif %}
+                                {% if d.message %}<br><small class="text-muted fst-italic">"{{ d.message[:60] }}"</small>{% endif %}
+                            </td>
+                            <td class="fw-semibold text-success">₹{{ "{:,.0f}".format(d.amount) }}</td>
+                            <td class="small text-muted">{{ d.created_at.strftime('%d %b %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="text-center text-muted py-4">No verified donations yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Timeline -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                    <i class="fas fa-receipt text-warning me-2"></i>Expense Timeline
+                </div>
+                <div class="card-body px-4 pt-0" style="max-height:400px;overflow-y:auto;">
+                    {% if expenses %}
+                    <div class="timeline">
+                        {% for e in expenses %}
+                        <div class="timeline-item d-flex gap-3 mb-3">
+                            <div class="timeline-dot mt-1">
+                                <span class="badge bg-warning-subtle text-warning rounded-circle p-2">
+                                    <i class="fas fa-receipt"></i>
+                                </span>
+                            </div>
+                            <div class="flex-fill">
+                                <div class="d-flex justify-content-between">
+                                    <strong class="small">{{ e.title }}</strong>
+                                    <span class="text-danger fw-semibold small">₹{{ "{:,.0f}".format(e.amount) }}</span>
+                                </div>
+                                <div class="small text-muted">{{ e.category.replace('_',' ').title() }} · {{ e.expense_date.strftime('%d %b %Y') }}</div>
+                                {% if e.vendor_name %}<div class="small text-muted">Vendor: {{ e.vendor_name }}</div>{% endif %}
+                                {% if e.description %}<div class="small text-secondary mt-1">{{ e.description[:80] }}</div>{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">No approved expenses logged yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
