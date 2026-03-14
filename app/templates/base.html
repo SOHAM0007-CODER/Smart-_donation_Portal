@@ -36,6 +36,7 @@
                 </li>
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_ngo() %}
+                        <li class="nav-item"><a class="nav-link ripple" href="{{ url_for('campaigns.ngo_dashboard') }}"><span class="material-icons-round me-1">analytics</span>Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link ripple" href="{{ url_for('campaigns.create') }}"><span class="material-icons-round me-1">add_circle</span>New Campaign</a></li>
                         <li class="nav-item"><a class="nav-link ripple" href="{{ url_for('expenses.log_expense') }}"><span class="material-icons-round me-1">receipt_long</span>Log Expense</a></li>
                     {% endif %}

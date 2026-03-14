@@ -35,6 +35,24 @@
                 {% endfor %}
             </div>
             {% endif %}
+
+            <!-- Donation & Expense Trend -->
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="material-icons-round text-success">show_chart</span>
+                        <span class="fw-semibold">Donation Progression (Approved Only)</span>
+                    </div>
+                    <small class="text-muted">Updates automatically</small>
+                </div>
+                <div class="card-body">
+                    <canvas id="campaignTrendChart" height="120"></canvas>
+                    <div class="d-flex gap-3 mt-2 small text-muted">
+                        <span class="d-flex align-items-center gap-1"><span class="badge bg-success">&nbsp;</span>Donations (Green)</span>
+                        <span class="d-flex align-items-center gap-1"><span class="badge bg-danger">&nbsp;</span>Expenses (Red)</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar -->
@@ -83,4 +101,64 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    const ctx = document.getElementById('campaignTrendChart');
+    if (!ctx) return;
+    const endpoint = "{{ url_for('campaigns.campaign_daily_data', campaign_id=campaign.id) }}";
+    let trendChart = null;
+
+    async function loadData() {
+        const res = await fetch(endpoint, {headers: {"X-Requested-With": "XMLHttpRequest"}});
+        const data = await res.json();
+        const cfg = {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Donations',
+                    data: data.donations,
+                    borderColor: '#2e7d32',
+                    backgroundColor: 'rgba(46,125,50,0.15)',
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: 'Expenses',
+                    data: data.expenses,
+                    borderColor: '#c62828',
+                    backgroundColor: 'rgba(198,40,40,0.12)',
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
+        };
+        if (!trendChart) {
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: cfg,
+                options: {
+                    responsive: true,
+                    interaction: {mode: 'index', intersect: false},
+                    plugins: {legend: {display: true}},
+                    scales: {
+                        x: {title: {display: true, text: 'Date'}},
+                        y: {title: {display: true, text: 'Amount (₹)'}}}
+                }
+            });
+        } else {
+            trendChart.data.labels = cfg.labels;
+            trendChart.data.datasets[0].data = cfg.datasets[0].data;
+            trendChart.data.datasets[1].data = cfg.datasets[1].data;
+            trendChart.update();
+        }
+    }
+
+    loadData();
+    setInterval(loadData, 30000);
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}NGO Dashboard â€“ DonorPortal{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">NGO Dashboard</h1>
+            <p class="text-muted mb-0">Live donation progression across your campaigns (approved donations only).</p>
+        </div>
+        <span class="badge bg-primary-soft text-primary">{{ campaigns|length }} Campaigns</span>
+    </div>
+
+    {% if not campaigns %}
+    <div class="alert alert-info shadow-sm">You haven't created any campaigns yet. Start by creating one to see analytics.</div>
+    {% else %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="material-icons-round text-primary">timeline</span>
+                <span class="fw-semibold">Donations over time</span>
+            </div>
+            <small class="text-muted">Refreshes every 30s</small>
+        </div>
+        <div class="card-body">
+            <canvas id="ngoTrendChart" height="140"></canvas>
+            <p class="text-muted small mt-2 mb-0">Each line represents one of your campaigns.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    const ctx = document.getElementById('ngoTrendChart');
+    if (!ctx) return;
+    const endpoint = "{{ url_for('campaigns.ngo_daily_data') }}";
+    let chartInstance = null;
+
+    async function loadData() {
+        const res = await fetch(endpoint, {headers: {"X-Requested-With": "XMLHttpRequest"}});
+        const data = await res.json();
+
+        const config = {
+            labels: data.labels,
+            datasets: data.datasets.map(ds => ({
+                ...ds,
+                fill: false,
+                pointRadius: 2
+            }))
+        };
+
+        if (!chartInstance) {
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: config,
+                options: {
+                    responsive: true,
+                    interaction: {mode: 'index', intersect: false},
+                    plugins: {legend: {position: 'bottom'}},
+                    scales: {
+                        x: {title: {display: true, text: 'Date'}},
+                        y: {title: {display: true, text: 'Donation Amount (â‚¹)'}}
+                    }
+                }
+            });
+        } else {
+            chartInstance.data.labels = config.labels;
+            chartInstance.data.datasets = config.datasets;
+            chartInstance.update();
+        }
+    }
+
+    loadData();
+    setInterval(loadData, 30000);
+})();
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, jsonify
 from flask_login import login_required, current_user
 from app.models.db import query_db
 from app.models.forms import CampaignForm
@@ -87,6 +87,39 @@ def detail(campaign_id):
                            recent_donations=recent_donations, pct=pct)
 
 
+@campaigns_bp.route('/<int:campaign_id>/analytics/daily')
+def campaign_daily_data(campaign_id):
+    # Ensure campaign exists
+    exists = query_db("SELECT id FROM campaigns WHERE id=%s", (campaign_id,), one=True)
+    if not exists:
+        abort(404)
+
+    donations = query_db(
+        """SELECT DATE(created_at) AS day, SUM(amount) AS total
+           FROM donations
+           WHERE campaign_id=%s AND status='approved'
+           GROUP BY day ORDER BY day""",
+        (campaign_id,)
+    )
+    expenses = query_db(
+        """SELECT DATE(expense_date) AS day, SUM(amount) AS total
+           FROM expenses
+           WHERE campaign_id=%s AND status='approved'
+           GROUP BY day ORDER BY day""",
+        (campaign_id,)
+    )
+
+    don_map = {row['day'].isoformat(): float(row['total']) for row in donations}
+    exp_map = {row['day'].isoformat(): float(row['total']) for row in expenses}
+    labels = sorted(set(don_map.keys()) | set(exp_map.keys()))
+
+    return jsonify({
+        "labels": labels,
+        "donations": [don_map.get(day, 0) for day in labels],
+        "expenses": [exp_map.get(day, 0) for day in labels]
+    })
+
+
 @campaigns_bp.route('/<int:campaign_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(campaign_id):
@@ -109,3 +142,58 @@ def edit(campaign_id):
         flash('Campaign updated.', 'success')
         return redirect(url_for('campaigns.detail', campaign_id=campaign_id))
     return render_template('campaigns/create.html', form=form, edit=True, campaign=campaign)
+
+
+@campaigns_bp.route('/ngo/dashboard')
+@login_required
+def ngo_dashboard():
+    if not current_user.is_ngo():
+        abort(403)
+    campaigns = query_db(
+        "SELECT id, title FROM campaigns WHERE ngo_id=%s ORDER BY created_at DESC",
+        (current_user.id,)
+    )
+    return render_template('campaigns/ngo_dashboard.html', campaigns=campaigns)
+
+
+@campaigns_bp.route('/ngo/analytics/daily')
+@login_required
+def ngo_daily_data():
+    if not current_user.is_ngo():
+        abort(403)
+
+    rows = query_db(
+        """SELECT c.id AS campaign_id, c.title,
+                  DATE(d.created_at) AS day, SUM(d.amount) AS total
+           FROM donations d
+           JOIN campaigns c ON c.id = d.campaign_id
+           WHERE c.ngo_id=%s AND d.status='approved'
+           GROUP BY c.id, c.title, day
+           ORDER BY day""",
+        (current_user.id,)
+    )
+
+    labels = sorted({row['day'].isoformat() for row in rows})
+    by_campaign = {}
+    for row in rows:
+        cid = row['campaign_id']
+        label = row['day'].isoformat()
+        by_campaign.setdefault(cid, {
+            "label": row['title'],
+            "data": {d: 0 for d in labels}
+        })
+        by_campaign[cid]["data"][label] = float(row['total'])
+
+    palette = ["#2e7d32", "#1565c0", "#6a1b9a", "#ef6c00", "#00838f", "#ad1457", "#7cb342"]
+    datasets = []
+    for idx, cfg in enumerate(by_campaign.values()):
+        color = palette[idx % len(palette)]
+        datasets.append({
+            "label": cfg["label"],
+            "data": [cfg["data"][d] for d in labels],
+            "borderColor": color,
+            "backgroundColor": f"{color}33",
+            "tension": 0.3
+        })
+
+    return jsonify({"labels": labels, "datasets": datasets})
