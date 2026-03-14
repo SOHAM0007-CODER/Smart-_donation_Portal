@@ -1,0 +1,94 @@
+.hero-section {
+    position: relative;
+    background: linear-gradient(135deg, #1976d2 0%, #00acc1 60%, #5ee7df 100%);
+    color: #fff;
+    overflow: hidden;
+}
+.hero-section .glow {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 60%);
+    filter: blur(18px);
+}
+.hero-section .glow.one { top: -80px; left: -40px; }
+.hero-section .glow.two { bottom: -100px; right: -60px; }
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+.hero-actions .md-btn { min-width: 180px; }
+
+.stat-grid {
+    display: grid;
+    gap: calc(var(--gutter) * 2);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.stat-card {
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    display: grid;
+    gap: 6px;
+}
+.stat-card .label { color: var(--muted); font-size: 0.9rem; }
+.stat-card .value { font-weight: 700; font-size: 1.8rem; }
+
+.section-title {
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.campaign-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    background: #fff;
+    transition: transform 180ms var(--easing), box-shadow 180ms var(--easing);
+}
+.campaign-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+}
+.campaign-card .card-img-top {
+    height: 190px;
+    object-fit: cover;
+}
+.campaign-meta { color: var(--muted); font-size: 0.9rem; }
+
+.how-card {
+    border-radius: var(--radius-lg);
+    background: #fff;
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+}
+
+.filter-bar .form-control,
+.filter-bar .form-select {
+    border-radius: var(--radius-md);
+}
+
+.app-footer {
+    border-top: 1px solid #1f2937;
+}
+
+.card-compact .card-body { padding: 1.25rem; }
+
+.form-actions { gap: var(--gutter); }
+
+@media (max-width: 576px) {
+    .hero-actions .md-btn { width: 100%; }
+}
+
+/* Timeline (transparency page) */
+.timeline {
+    border-left: 2px solid var(--border);
+    padding-left: 12px;
+    margin-left: 6px;
+}
+.timeline-item { padding-left: 4px; }
+.timeline-dot { margin-left: -22px; }

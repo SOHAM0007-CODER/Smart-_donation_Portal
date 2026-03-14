@@ -1,0 +1,58 @@
+:root {
+    --primary: #1976d2;
+    --on-primary: #ffffff;
+    --primary-container: #e3f2fd;
+    --secondary: #00acc1;
+    --surface: #f5f7fa;
+    --card: #ffffff;
+    --text: #2f3439;
+    --muted: #6b7280;
+    --border: #e2e8f0;
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 12px 28px rgba(25, 118, 210, 0.14);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --gutter: 8px;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body.app-body {
+    font-family: "Roboto", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+a:hover { color: #1258a8; }
+
+.app-body main {
+    background: var(--surface);
+}
+
+.app-footer {
+    background: #0f172a;
+    color: #e5e7eb;
+}
+
+.bg-primary-soft { background: rgba(25, 118, 210, 0.12); }
+.text-muted { color: var(--muted) !important; }
+
+.shadow-soft { box-shadow: var(--shadow-sm); }
+
+/* Smooth transitions */
+.app-transition,
+.app-transition * {
+    transition: all 180ms var(--easing);
+}

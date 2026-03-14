@@ -1,49 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Home – Smart Donation Portal{% endblock %}
+{% block title %}Home - Smart Donation Portal{% endblock %}
 
 {% block content %}
 <!-- Hero -->
 <section class="hero-section text-white text-center py-5">
-    <div class="container py-4">
-        <h1 class="display-4 fw-bold mb-3">Donate With Confidence</h1>
-        <p class="lead mb-4">Every donation tracked. Every expense verified. 100% transparent NGO funding.</p>
-        <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-light btn-lg px-5 me-2">
-            <i class="fas fa-search me-2"></i>Explore Campaigns
-        </a>
-        {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-5">
-            <i class="fas fa-user-plus me-2"></i>Join Now
-        </a>
-        {% endif %}
+    <span class="glow one"></span>
+    <span class="glow two"></span>
+    <div class="container hero-content py-5">
+        <p class="pill badge-soft d-inline-flex align-items-center gap-1 mb-3">
+            <span class="material-icons-round">verified</span>
+            100% transparent giving
+        </p>
+        <h1 class="display-5 fw-bold mb-3">Donate with confidence. Track every rupee.</h1>
+        <p class="lead mb-4 text-white-50">Smart Donation Portal keeps campaigns accountable with real-time progress and verified expenses.</p>
+        <div class="hero-actions d-flex flex-wrap justify-content-center gap-3">
+            <a href="{{ url_for('campaigns.list_campaigns') }}" class="md-btn md-btn-primary ripple">
+                <span class="material-icons-round me-2">search</span>
+                Explore Campaigns
+            </a>
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="md-btn md-btn-secondary ripple">
+                <span class="material-icons-round me-2">person_add</span>
+                Join as Donor
+            </a>
+            {% endif %}
+        </div>
     </div>
 </section>
 
 <!-- Stats -->
-<section class="py-4 bg-white shadow-sm">
+<section class="py-5">
     <div class="container">
-        <div class="row text-center g-3">
-            <div class="col-6 col-md-3">
-                <div class="stat-card p-3">
-                    <div class="stat-number text-primary">{{ stats.active_campaigns }}</div>
-                    <div class="stat-label">Active Campaigns</div>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="label">Active Campaigns</div>
+                <div class="value text-primary d-flex align-items-center gap-2">
+                    <span class="material-icons-round">campaign</span>{{ stats.active_campaigns }}
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card p-3">
-                    <div class="stat-number text-success">₹{{ "{:,.0f}".format(stats.total_donated) }}</div>
-                    <div class="stat-label">Total Donated</div>
+            <div class="stat-card">
+                <div class="label">Total Donated</div>
+                <div class="value text-success d-flex align-items-center gap-2">
+                    <span class="material-icons-round">paid</span>₹{{ "{:,.0f}".format(stats.total_donated) }}
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card p-3">
-                    <div class="stat-number text-warning">{{ stats.total_donors }}</div>
-                    <div class="stat-label">Generous Donors</div>
+            <div class="stat-card">
+                <div class="label">Generous Donors</div>
+                <div class="value text-warning d-flex align-items-center gap-2">
+                    <span class="material-icons-round">favorite</span>{{ stats.total_donors }}
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card p-3">
-                    <div class="stat-number text-info">{{ stats.verified_ngos }}</div>
-                    <div class="stat-label">Verified NGOs</div>
+            <div class="stat-card">
+                <div class="label">Verified NGOs</div>
+                <div class="value text-info d-flex align-items-center gap-2">
+                    <span class="material-icons-round">verified_user</span>{{ stats.verified_ngos }}
                 </div>
             </div>
         </div>
@@ -53,50 +63,51 @@
 <!-- Featured Campaigns -->
 <section class="py-5">
     <div class="container">
-        <h2 class="fw-bold mb-4 text-center">Featured Campaigns</h2>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="section-title mb-0">Featured Campaigns</h2>
+            <a href="{{ url_for('campaigns.list_campaigns') }}" class="md-btn md-btn-text ripple d-none d-md-inline-flex">
+                View all
+                <span class="material-icons-round ms-1">arrow_forward</span>
+            </a>
+        </div>
         {% if featured %}
         <div class="row g-4">
             {% for c in featured %}
             <div class="col-md-6 col-lg-4">
-                <div class="card campaign-card h-100 shadow-sm border-0">
+                <div class="campaign-card h-100">
                     {% if c.image %}
-                    <img src="{{ url_for('static', filename='uploads/campaign_images/' + c.image) }}"
-                         class="card-img-top" style="height:180px;object-fit:cover;" alt="">
+                    <img src="{{ url_for('static', filename='uploads/campaign_images/' + c.image) }}" class="card-img-top" alt="">
                     {% else %}
-                    <div class="campaign-placeholder d-flex align-items-center justify-content-center"
-                         style="height:180px;background:linear-gradient(135deg,#667eea,#764ba2);">
-                        <i class="fas fa-heart fa-3x text-white opacity-50"></i>
+                    <div class="d-flex align-items-center justify-content-center card-img-top" style="background:linear-gradient(135deg,#1976d2,#00acc1);height:190px;">
+                        <span class="material-icons-round text-white" style="font-size:56px;opacity:.75;">volunteer_activism</span>
                     </div>
                     {% endif %}
-                    <div class="card-body">
+                    <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary-subtle text-primary">{{ c.category.replace('_',' ').title() }}</span>
+                            <span class="badge-soft pill text-primary">{{ c.category.replace('_',' ').title() }}</span>
                             {% if c.is_verified %}
-                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                            <span class="badge bg-success"><span class="material-icons-round me-1" style="font-size:18px;">verified</span>Verified</span>
                             {% endif %}
                         </div>
-                        <h5 class="card-title fw-semibold">{{ c.title }}</h5>
-                        <p class="text-muted small mb-2">by {{ c.organization_name }}</p>
-                        <p class="card-text small text-secondary">{{ c.description[:100] }}…</p>
+                        <h5 class="fw-semibold mb-1">{{ c.title }}</h5>
+                        <p class="campaign-meta mb-1">by {{ c.organization_name }}</p>
+                        <p class="text-muted small mb-0">{{ c.description[:100] }}...</p>
                     </div>
-                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                    <div class="card-body pt-0">
                         <div class="d-flex justify-content-between small text-muted mb-1">
                             <span>₹{{ "{:,.0f}".format(c.current_amount) }} raised</span>
                             <span>{{ c.pct or 0 }}%</span>
                         </div>
-                        <div class="progress mb-3" style="height:8px;">
-                            <div class="progress-bar bg-success" style="width:{{ c.pct or 0 }}%"></div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" style="width:{{ c.pct or 0 }}%"></div>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ url_for('campaigns.detail', campaign_id=c.id) }}"
-                               class="btn btn-outline-primary btn-sm flex-fill">View</a>
+                            <a href="{{ url_for('campaigns.detail', campaign_id=c.id) }}" class="md-btn md-btn-secondary ripple flex-fill">View</a>
                             {% if current_user.is_authenticated and current_user.is_donor() %}
-                            <a href="{{ url_for('donations.donate', campaign_id=c.id) }}"
-                               class="btn btn-primary btn-sm flex-fill">Donate</a>
+                            <a href="{{ url_for('donations.donate', campaign_id=c.id) }}" class="md-btn md-btn-primary ripple flex-fill">Donate</a>
                             {% endif %}
-                            <a href="{{ url_for('main.transparency', campaign_id=c.id) }}"
-                               class="btn btn-outline-success btn-sm" title="Transparency Report">
-                                <i class="fas fa-chart-bar"></i>
+                            <a href="{{ url_for('main.transparency', campaign_id=c.id) }}" class="md-btn md-btn-text ripple" title="Transparency Report">
+                                <span class="material-icons-round">insights</span>
                             </a>
                         </div>
                     </div>
@@ -104,50 +115,51 @@
             </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-4">
-            <a href="{{ url_for('campaigns.list_campaigns') }}" class="btn btn-outline-primary px-4">
-                View All Campaigns <i class="fas fa-arrow-right ms-2"></i>
+        <div class="text-center mt-4 d-md-none">
+            <a href="{{ url_for('campaigns.list_campaigns') }}" class="md-btn md-btn-secondary ripple">
+                View all campaigns
+                <span class="material-icons-round ms-1">arrow_forward</span>
             </a>
         </div>
         {% else %}
         <div class="text-center text-muted py-5">
-            <i class="fas fa-seedling fa-3x mb-3 text-success opacity-50"></i>
-            <p>No active campaigns yet. Be the first NGO to start one!</p>
+            <span class="material-icons-round text-success" style="font-size:56px;opacity:.6;">eco</span>
+            <p class="mt-3">No active campaigns yet. Be the first NGO to start one!</p>
         </div>
         {% endif %}
     </div>
 </section>
 
 <!-- How It Works -->
-<section class="py-5 bg-light">
+<section class="py-5" style="background:#eef2ff;">
     <div class="container">
-        <h2 class="fw-bold text-center mb-5">How It Works</h2>
+        <h2 class="section-title text-center mb-5">How It Works</h2>
         <div class="row g-4 text-center">
             <div class="col-md-4">
-                <div class="how-card p-4">
+                <div class="how-card h-100">
                     <div class="how-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
-                        <i class="fas fa-search fa-lg"></i>
+                        <span class="material-icons-round">travel_explore</span>
                     </div>
                     <h5 class="fw-semibold">1. Browse Campaigns</h5>
-                    <p class="text-muted small">Explore verified NGO campaigns across multiple categories.</p>
+                    <p class="text-muted small mb-0">Explore verified NGO campaigns across multiple categories.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="how-card p-4">
+                <div class="how-card h-100">
                     <div class="how-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
-                        <i class="fas fa-upload fa-lg"></i>
+                        <span class="material-icons-round">upload_file</span>
                     </div>
                     <h5 class="fw-semibold">2. Donate & Upload Proof</h5>
-                    <p class="text-muted small">Make your payment and upload the receipt. Admin verifies it.</p>
+                    <p class="text-muted small mb-0">Make your payment and upload the receipt. Admin verifies it.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="how-card p-4">
+                <div class="how-card h-100">
                     <div class="how-icon bg-warning text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
-                        <i class="fas fa-chart-pie fa-lg"></i>
+                        <span class="material-icons-round">insights</span>
                     </div>
                     <h5 class="fw-semibold">3. Track Impact</h5>
-                    <p class="text-muted small">View the transparency dashboard — every rupee accounted for.</p>
+                    <p class="text-muted small mb-0">View the transparency dashboard — every rupee accounted for.</p>
                 </div>
             </div>
         </div>

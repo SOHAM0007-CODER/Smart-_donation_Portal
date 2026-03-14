@@ -1,30 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Donate – {{ campaign.title }}{% endblock %}
+{% block title %}Donate - {{ campaign.title }}{% endblock %}
 {% block content %}
 <div class="container py-5">
     <div class="row g-4 justify-content-center">
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm">
+            <div class="md-card shadow-soft">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3 mb-4">
-                        <a href="{{ url_for('campaigns.detail', campaign_id=campaign.id) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i>
+                        <a href="{{ url_for('campaigns.detail', campaign_id=campaign.id) }}" class="md-btn md-btn-secondary ripple btn-sm d-inline-flex align-items-center">
+                            <span class="material-icons-round">arrow_back</span>
                         </a>
                         <div>
-                            <h4 class="fw-bold mb-0">Make a Donation</h4>
+                            <h4 class="fw-bold mb-1">Make a Donation</h4>
                             <p class="text-muted small mb-0">to: <strong>{{ campaign.title }}</strong></p>
                         </div>
                     </div>
 
                     <!-- Campaign mini-progress -->
-                    <div class="alert alert-light mb-4">
-                        <div class="d-flex justify-content-between small text-muted mb-1">
-                            <span>₹{{ "{:,.0f}".format(campaign.current_amount) }} raised</span>
-                            <span>Goal: ₹{{ "{:,.0f}".format(campaign.target_amount) }}</span>
-                        </div>
-                        <div class="progress" style="height:8px;">
-                            {% set pct = ((campaign.current_amount / campaign.target_amount)*100)|round(1) if campaign.target_amount else 0 %}
-                            <div class="progress-bar bg-success" style="width:{{ [pct,100]|min }}%"></div>
+                    <div class="alert alert-light app-alert mb-4">
+                        <div class="w-100">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>₹{{ "{:,.0f}".format(campaign.current_amount) }} raised</span>
+                                <span>Goal: ₹{{ "{:,.0f}".format(campaign.target_amount) }}</span>
+                            </div>
+                            <div class="progress">
+                                {% set pct = ((campaign.current_amount / campaign.target_amount)*100)|round(1) if campaign.target_amount else 0 %}
+                                <div class="progress-bar" style="width:{{ [pct,100]|min }}%"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -33,48 +35,50 @@
                         {{ form.campaign_id() }}
                         <!-- Quick Amount Buttons -->
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Quick Select Amount</label>
+                            <label class="form-label fw-semibold">Quick select amount</label>
                             <div class="d-flex flex-wrap gap-2 mb-2">
                                 {% for amt in [100, 500, 1000, 5000, 10000] %}
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-amt" data-amt="{{ amt }}">
+                                <button type="button" class="md-btn md-btn-secondary ripple btn-sm quick-amt" data-amt="{{ amt }}">
                                     ₹{{ amt }}
                                 </button>
                                 {% endfor %}
                             </div>
-                            {{ form.amount.label(class="form-label fw-semibold") }}
-                            <div class="input-group">
-                                <span class="input-group-text">₹</span>
-                                {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), id="amount-field", placeholder="Enter amount") }}
+                            <div class="md-field">
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), id="amount-field", placeholder=" ") }}
+                                </div>
+                                {{ form.amount.label(class="form-label") }}
+                                {% for e in form.amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
                             </div>
-                            {% for e in form.amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.payment_method.label(class="form-label fw-semibold") }}
+                        <div class="md-field mb-3">
                             {{ form.payment_method(class="form-select") }}
+                            {{ form.payment_method.label(class="form-label") }}
                         </div>
-                        <div class="mb-3">
-                            {{ form.transaction_id.label(class="form-label fw-semibold") }}
-                            {{ form.transaction_id(class="form-control", placeholder="UPI Ref / Transaction ID / Cheque No.") }}
+                        <div class="md-field mb-3">
+                            {{ form.transaction_id(class="form-control", placeholder=" ") }}
+                            {{ form.transaction_id.label(class="form-label") }}
                         </div>
-                        <div class="mb-3">
-                            {{ form.payment_proof.label(class="form-label fw-semibold") }}
+                        <div class="md-field mb-3">
                             {{ form.payment_proof(class="form-control" + (" is-invalid" if form.payment_proof.errors else "")) }}
+                            {{ form.payment_proof.label(class="form-label") }}
                             <div class="form-text">Upload screenshot, receipt, or bank slip (JPG/PNG/PDF, max 10 MB).</div>
                             {% for e in form.payment_proof.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.message.label(class="form-label fw-semibold") }}
-                            {{ form.message(class="form-control", rows=2, placeholder="Optional message for the NGO…") }}
+                        <div class="md-field mb-3">
+                            {{ form.message(class="form-control", rows=2, placeholder=" ") }}
+                            {{ form.message.label(class="form-label") }}
                         </div>
                         <div class="mb-4 form-check">
                             {{ form.is_anonymous(class="form-check-input") }}
                             {{ form.is_anonymous.label(class="form-check-label") }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2">
-                            <i class="fas fa-heart me-2"></i>Submit Donation
+                        <button type="submit" class="md-btn md-btn-primary ripple w-100">
+                            <span class="material-icons-round me-2">favorite</span>Submit Donation
                         </button>
                         <p class="text-muted text-center small mt-3">
-                            <i class="fas fa-clock me-1"></i>Your donation will appear after admin verification.
+                            <span class="material-icons-round me-1" style="font-size:18px;">schedule</span>Your donation will appear after admin verification.
                         </p>
                     </form>
                 </div>
@@ -82,15 +86,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script>
-document.querySelectorAll('.quick-amt').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.getElementById('amount-field').value = btn.dataset.amt;
-        document.querySelectorAll('.quick-amt').forEach(b => b.classList.remove('active','btn-primary'));
-        btn.classList.add('active','btn-primary');
-    });
-});
-</script>
 {% endblock %}

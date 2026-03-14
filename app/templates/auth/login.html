@@ -1,30 +1,33 @@
 {% extends "base.html" %}
-{% block title %}Login – DonorPortal{% endblock %}
+{% block title %}Login - DonorPortal{% endblock %}
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card shadow-sm border-0">
+            <div class="md-card md-card-hover shadow-soft">
                 <div class="card-body p-4 p-md-5">
-                    <h3 class="fw-bold text-center mb-1">Welcome Back</h3>
-                    <p class="text-center text-muted small mb-4">Sign in to your account</p>
+                    <div class="text-center mb-4">
+                        <span class="material-icons-round text-primary" style="font-size:40px;">lock</span>
+                        <h3 class="fw-bold mb-1">Welcome Back</h3>
+                        <p class="text-muted small mb-0">Sign in to continue your impact</p>
+                    </div>
                     <form method="POST" novalidate>
                         {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label fw-semibold") }}
-                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="you@email.com") }}
-                            {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        <div class="md-field mb-3">
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder=" ") }}
+                            {{ form.email.label(class="form-label") }}
+                            {% for e in form.email.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.password.label(class="form-label fw-semibold") }}
-                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="••••••••") }}
-                            {% for e in form.password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        <div class="md-field mb-3">
+                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder=" ") }}
+                            {{ form.password.label(class="form-label") }}
+                            {% for e in form.password.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
                         </div>
                         <div class="mb-3 form-check">
                             {{ form.remember(class="form-check-input") }}
                             {{ form.remember.label(class="form-check-label") }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+                        <button type="submit" class="md-btn md-btn-primary ripple w-100">Login</button>
                     </form>
                     <hr>
                     <p class="text-center text-muted small mb-0">
