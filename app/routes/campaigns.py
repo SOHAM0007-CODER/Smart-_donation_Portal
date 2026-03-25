@@ -64,10 +64,62 @@ def create():
     return render_template('campaigns/create.html', form=form)
 
 
+@campaigns_bp.route('/ngo/<int:ngo_id>')
+def public_ngo_dashboard(ngo_id):
+    """Public NGO Dashboard - visible to all users"""
+    ngo = query_db(
+        """SELECT id, organization_name, name, address, profile_image
+           FROM users WHERE id=%s AND role='ngo' AND is_verified=1""",
+        (ngo_id,), one=True
+    )
+    if not ngo:
+        abort(404)
+
+    # Fetch all campaigns for this NGO
+    campaigns = query_db(
+        """SELECT id, title, target_amount as goal_amount, current_amount as raised_amount,
+                  status, created_at, image,
+                  ROUND((current_amount/target_amount)*100, 1) as progress_pct
+           FROM campaigns WHERE ngo_id=%s AND status IN ('active', 'completed')
+           ORDER BY created_at DESC""",
+        (ngo_id,)
+    )
+
+    # Calculate statistics
+    total_campaigns = len(campaigns)
+    completed_campaigns = sum(1 for c in campaigns if c['status'] == 'completed')
+    ongoing_campaigns = sum(1 for c in campaigns if c['status'] == 'active')
+    total_raised = sum(float(c['raised_amount']) for c in campaigns)
+
+    # Total expenses for all NGO campaigns
+    total_expenses_result = query_db(
+        """SELECT COALESCE(SUM(amount), 0) as total FROM expenses
+           WHERE ngo_id=%s AND status='approved'""",
+        (ngo_id,), one=True
+    )
+    total_expenses = float(total_expenses_result['total']) if total_expenses_result else 0
+
+    # Success rate (percentage of completed campaigns)
+    success_rate = round((completed_campaigns / total_campaigns * 100), 1) if total_campaigns > 0 else 0
+
+    return render_template('campaigns/ngo_dashboard.html',
+                           ngo=ngo,
+                           campaigns=campaigns,
+                           stats={
+                               'total_campaigns': total_campaigns,
+                               'completed_campaigns': completed_campaigns,
+                               'ongoing_campaigns': ongoing_campaigns,
+                               'total_raised': total_raised,
+                               'total_expenses': total_expenses,
+                               'success_rate': success_rate
+                           },
+                           progress_percent=progress_percent)
+
+
 @campaigns_bp.route('/<int:campaign_id>')
 def detail(campaign_id):
     campaign = query_db(
-        """SELECT c.*, u.organization_name, u.is_verified, u.name as ngo_name
+        """SELECT c.*, u.organization_name, u.is_verified, u.name as ngo_name, u.id as ngo_id
            FROM campaigns c JOIN users u ON c.ngo_id = u.id
            WHERE c.id = %s""",
         (campaign_id,), one=True
