@@ -17,7 +17,7 @@
                 <span class="badge bg-{% if campaign.status=='active' %}success{% else %}secondary{% endif %}">{{ campaign.status.title() }}</span>
             </div>
             <h1 class="fw-bold">{{ campaign.title }}</h1>
-            <p class="text-muted">by <strong>{{ campaign.organization_name or campaign.ngo_name }}</strong></p>
+            <p class="text-muted">by <a href="{{ url_for('campaigns.public_ngo_dashboard', ngo_id=campaign.ngo_id) }}" class="ngo-link"><strong>{{ campaign.organization_name or campaign.ngo_name }}</strong></a></p>
             <p class="lead">{{ campaign.description }}</p>
 
             <!-- Recent Donors -->
