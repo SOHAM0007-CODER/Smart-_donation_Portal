@@ -104,6 +104,21 @@ input[type="file"].form-control {
 }
 input[type="file"].form-control:hover { background: #e9ecef; }
 
+/* ── NGO Links ────────────────────────────────── */
+.ngo-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all .2s;
+    border-bottom: 2px solid transparent;
+    display: inline-block;
+    padding-bottom: 1px;
+}
+.ngo-link:hover {
+    color: #0a58ca;
+    border-bottom-color: #0a58ca;
+}
+
 /* ── Footer ───────────────────────────────────── */
 footer { margin-top: auto; }
 
