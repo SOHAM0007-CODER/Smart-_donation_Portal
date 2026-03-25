@@ -1,80 +1,586 @@
 {% extends "base.html" %}
-{% block title %}NGO Dashboard â€“ DonorPortal{% endblock %}
+{% block title %}{{ ngo.organization_name }} – NGO Dashboard{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">NGO Dashboard</h1>
-            <p class="text-muted mb-0">Live donation progression across your campaigns (approved donations only).</p>
-        </div>
-        <span class="badge bg-primary-soft text-primary">{{ campaigns|length }} Campaigns</span>
-    </div>
-
-    {% if not campaigns %}
-    <div class="alert alert-info shadow-sm">You haven't created any campaigns yet. Start by creating one to see analytics.</div>
-    {% else %}
-    <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <span class="material-icons-round text-primary">timeline</span>
-                <span class="fw-semibold">Donations over time</span>
+<div class="ngo-dashboard-container">
+    <!-- NGO Hero Section -->
+    <div class="ngo-hero-section">
+        <div class="container">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <h1 class="ngo-hero-title">{{ ngo.organization_name }}</h1>
+                    <p class="ngo-hero-subtitle">{{ ngo.address or 'Dedicated to making a difference' }}</p>
+                </div>
+                <div class="col-lg-4 d-flex justify-content-lg-end">
+                    <div class="ngo-profile-card">
+                        {% if ngo.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + ngo.profile_image) }}" 
+                             alt="{{ ngo.organization_name }}" class="ngo-profile-img">
+                        {% else %}
+                        <div class="ngo-profile-placeholder">
+                            <span class="material-icons-round">apartment</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <small class="text-muted">Refreshes every 30s</small>
-        </div>
-        <div class="card-body">
-            <canvas id="ngoTrendChart" height="140"></canvas>
-            <p class="text-muted small mt-2 mb-0">Each line represents one of your campaigns.</p>
         </div>
     </div>
-    {% endif %}
+
+    <!-- Stats Section -->
+    <div class="container py-5">
+        <div class="row g-3 mb-5">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card-glass">
+                    <div class="stat-icon bg-primary-soft">
+                        <span class="material-icons-round">public</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ stats.total_campaigns }}</div>
+                        <div class="stat-label">Total Campaigns</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card-glass">
+                    <div class="stat-icon bg-success-soft">
+                        <span class="material-icons-round">check_circle</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ stats.completed_campaigns }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card-glass">
+                    <div class="stat-icon bg-info-soft">
+                        <span class="material-icons-round">schedule</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ stats.ongoing_campaigns }}</div>
+                        <div class="stat-label">Ongoing</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card-glass">
+                    <div class="stat-icon bg-warning-soft">
+                        <span class="material-icons-round">trending_up</span>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ (stats.success_rate | int) }}%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Stats -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="financial-card raised">
+                    <div class="financial-header">
+                        <span class="material-icons-round">paid</span>
+                        <h5>Total Raised</h5>
+                    </div>
+                    <div class="financial-amount">₹{{ "{:,.0f}".format(stats.total_raised) }}</div>
+                    <div class="financial-subtitle">From {{ stats.total_campaigns }} campaign{{ 's' if stats.total_campaigns != 1 else '' }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="financial-card spent">
+                    <div class="financial-header">
+                        <span class="material-icons-round">receipt_long</span>
+                        <h5>Total Spent</h5>
+                    </div>
+                    <div class="financial-amount">₹{{ "{:,.0f}".format(stats.total_expenses) }}</div>
+                    <div class="financial-subtitle">Documented expenses</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaigns Section -->
+        {% if campaigns %}
+        <div class="campaigns-section">
+            <div class="section-header mb-4">
+                <h2 class="fw-bold">Campaigns</h2>
+                <p class="text-muted">Active and completed fundraising initiatives</p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover ngo-campaigns-table">
+                    <thead>
+                        <tr>
+                            <th>Campaign Title</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Amount Raised</th>
+                            <th>Goal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in campaigns %}
+                        <tr>
+                            <td>
+                                <div class="campaign-title-cell">
+                                    {% if campaign.image %}
+                                    <img src="{{ url_for('static', filename='uploads/campaign_images/' + campaign.image) }}" 
+                                         alt="{{ campaign.title }}" class="campaign-thumb">
+                                    {% else %}
+                                    <div class="campaign-thumb-placeholder">
+                                        <span class="material-icons-round">volunteer_activism</span>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ campaign.title }}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-status badge-{{ campaign.status }}">
+                                    {{ campaign.status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="progress-mini">
+                                    <div class="progress-bar" style="width: {{ campaign.progress_pct or 0 }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ campaign.progress_pct or 0 }}%</small>
+                            </td>
+                            <td>
+                                <strong class="text-success">₹{{ "{:,.0f}".format(campaign.raised_amount) }}</strong>
+                            </td>
+                            <td>
+                                <span class="text-muted">₹{{ "{:,.0f}".format(campaign.goal_amount) }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('campaigns.detail', campaign_id=campaign.id) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <span class="material-icons-round">arrow_forward</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <span class="material-icons-round">folder_open</span>
+            </div>
+            <h4 class="fw-semibold">No campaigns yet</h4>
+            <p class="text-muted">This NGO hasn't launched any campaigns yet.</p>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-(function() {
-    const ctx = document.getElementById('ngoTrendChart');
-    if (!ctx) return;
-    const endpoint = "{{ url_for('campaigns.ngo_daily_data') }}";
-    let chartInstance = null;
+<style>
+.ngo-dashboard-container {
+    background: linear-gradient(135deg, #f5f7ff 0%, #f8f4ff 100%);
+    min-height: 100vh;
+}
 
-    async function loadData() {
-        const res = await fetch(endpoint, {headers: {"X-Requested-With": "XMLHttpRequest"}});
-        const data = await res.json();
+.ngo-hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 50%, #6610f2 100%);
+    color: white;
+    padding: 60px 0;
+    position: relative;
+    overflow: hidden;
+}
 
-        const config = {
-            labels: data.labels,
-            datasets: data.datasets.map(ds => ({
-                ...ds,
-                fill: false,
-                pointRadius: 2
-            }))
-        };
+.ngo-hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    filter: blur(40px);
+}
 
-        if (!chartInstance) {
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: config,
-                options: {
-                    responsive: true,
-                    interaction: {mode: 'index', intersect: false},
-                    plugins: {legend: {position: 'bottom'}},
-                    scales: {
-                        x: {title: {display: true, text: 'Date'}},
-                        y: {title: {display: true, text: 'Donation Amount (â‚¹)'}}
-                    }
-                }
-            });
-        } else {
-            chartInstance.data.labels = config.labels;
-            chartInstance.data.datasets = config.datasets;
-            chartInstance.update();
-        }
+.ngo-hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.ngo-hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+}
+
+.ngo-profile-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ngo-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.ngo-profile-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    border-radius: 16px;
+    color: white;
+    font-size: 4rem;
+}
+
+.stat-card-glass {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.stat-card-glass:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 28px;
+}
+
+.bg-primary-soft {
+    background: #cfe2ff;
+    color: #0d6efd;
+}
+
+.bg-success-soft {
+    background: #d1e7dd;
+    color: #198754;
+}
+
+.bg-info-soft {
+    background: #cfe2ff;
+    color: #0dcaf0;
+}
+
+.bg-warning-soft {
+    background: #fff3cd;
+    color: #ffc107;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 6px;
+}
+
+.financial-card {
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.financial-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    filter: blur(40px);
+}
+
+.financial-card.spent {
+    background: linear-gradient(135deg, #198754 0%, #0d6614 100%);
+}
+
+.financial-card:hover {
+    transform: translateY(-8px);
+}
+
+.financial-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.financial-header span {
+    font-size: 28px;
+    opacity: 0.9;
+}
+
+.financial-header h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+    font-weight: 600;
+}
+
+.financial-amount {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.financial-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    position: relative;
+    z-index: 1;
+}
+
+.ngo-campaigns-table {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.ngo-campaigns-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.ngo-campaigns-table thead th {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 18px 16px;
+    border: none;
+}
+
+.ngo-campaigns-table tbody tr {
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.ngo-campaigns-table tbody tr:hover {
+    background-color: #f8f9ff;
+}
+
+.ngo-campaigns-table tbody td {
+    padding: 18px 16px;
+    vertical-align: middle;
+}
+
+.campaign-title-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.campaign-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.campaign-thumb-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0d6efd, #00acc1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-status.badge-active {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.badge-status.badge-completed {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.badge-status.badge-paused {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.badge-status.badge-cancelled {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.progress-mini {
+    height: 6px;
+    border-radius: 3px;
+    background: #e9ecef;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progress-mini .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #198754, #0f5132);
+    transition: width 0.3s ease;
+}
+
+.btn-outline-primary {
+    border: 1.5px solid #0d6efd;
+    color: #0d6efd;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+}
+
+.btn-outline-primary:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+.btn-outline-primary span {
+    font-size: 18px;
+}
+
+.section-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 20px;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h4 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #6c757d;
+}
+
+.ngo-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.ngo-link:hover {
+    color: #0a58ca;
+    border-bottom-color: #0a58ca;
+}
+
+@media (max-width: 768px) {
+    .ngo-hero-title {
+        font-size: 2rem;
     }
 
-    loadData();
-    setInterval(loadData, 30000);
-})();
-</script>
+    .ngo-hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .financial-amount {
+        font-size: 2rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .ngo-profile-card {
+        height: 150px;
+    }
+}
+</style>
 {% endblock %}
