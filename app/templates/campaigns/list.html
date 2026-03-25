@@ -57,7 +57,7 @@
                         {% if c.is_verified %}<span class="badge bg-success"><span class="material-icons-round me-1" style="font-size:18px;">verified</span>Verified</span>{% endif %}
                     </div>
                     <h5 class="fw-semibold mb-1">{{ c.title }}</h5>
-                    <p class="campaign-meta mb-1">by {{ c.organization_name }}</p>
+                    <p class="campaign-meta mb-1">by <a href="{{ url_for('campaigns.public_ngo_dashboard', ngo_id=c.ngo_id) }}" class="ngo-link">{{ c.organization_name }}</a></p>
                     <p class="text-muted small mb-0">{{ c.description[:120] }}...</p>
                 </div>
                 <div class="card-body pt-0">
