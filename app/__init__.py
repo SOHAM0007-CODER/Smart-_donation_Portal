@@ -14,7 +14,10 @@ def create_app():
     app = Flask(__name__)
 
     # ── Core Config ──────────────────────────────────────────────────────────
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-me-in-production-abc123xyz')
+    secret_key = os.getenv('SECRET_KEY')
+    if not secret_key:
+        raise RuntimeError("SECRET_KEY is not set. Create a .env file (copy from .env.example) and set SECRET_KEY.")
+    app.config['SECRET_KEY'] = secret_key
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024   # 10 MB upload limit
 
     # ── MySQL ─────────────────────────────────────────────────────────────────
@@ -22,6 +25,7 @@ def create_app():
     app.config['MYSQL_USER']     = os.getenv('MYSQL_USER',     'root')
     app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD', '')
     app.config['MYSQL_DB']       = os.getenv('MYSQL_DB',       'smart_donation_portal')
+    app.config['MYSQL_PORT']     = int(os.getenv('MYSQL_PORT', '4000'))
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
     # ── Upload folders ────────────────────────────────────────────────────────

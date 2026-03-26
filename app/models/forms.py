@@ -2,15 +2,25 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import (StringField, PasswordField, SelectField, TextAreaField,
                      DecimalField, DateField, BooleanField, HiddenField, IntegerField)
-from wtforms.validators import (DataRequired, Email, EqualTo, Length,
+from wtforms.validators import (DataRequired, Email, EqualTo, Length, Regexp,
                                 NumberRange, Optional, ValidationError)
+
+
+try:
+    import email_validator as _email_validator  # noqa: F401
+    EMAIL_VALIDATOR = Email()
+except Exception:
+    EMAIL_VALIDATOR = Regexp(
+        r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+        message="Invalid email address.",
+    )
 
 
 # ─── Auth ────────────────────────────────────────────────────────────────────
 
 class RegistrationForm(FlaskForm):
     name  = StringField('Full Name',  validators=[DataRequired(), Length(2, 150)])
-    email = StringField('Email',      validators=[DataRequired(), Email()])
+    email = StringField('Email',      validators=[DataRequired(), EMAIL_VALIDATOR])
     role  = SelectField('Register As', choices=[('donor', 'Donor'), ('ngo', 'NGO / Organisation')],
                         validators=[DataRequired()])
     organization_name    = StringField('Organisation Name',       validators=[Optional(), Length(max=200)])
@@ -27,7 +37,7 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email    = StringField('Email',    validators=[DataRequired(), Email()])
+    email    = StringField('Email',    validators=[DataRequired(), EMAIL_VALIDATOR])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
 

@@ -77,6 +77,8 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+> If you see `Exception: Install 'email_validator' for email validation support.`, install `email-validator` (it’s included in `requirements.txt`).
+
 > **On Ubuntu/Debian**, you may need:
 > ```bash
 > sudo apt-get install python3-dev default-libmysqlclient-dev build-essential
@@ -88,6 +90,25 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your MySQL credentials and a strong SECRET_KEY
 ```
+
+## Team Setup
+
+For local development, each team member must create their own `.env` file (it is intentionally git-ignored).
+
+1. Copy the template:
+
+```bash
+cp .env.example .env
+```
+
+2. Fill in your TiDB Cloud credentials (TiDB Serverless uses `MYSQL_PORT=4000`):
+
+- `SECRET_KEY` (required)
+- `MYSQL_HOST`
+- `MYSQL_PORT=4000`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_DB`
 
 ### 6. Create the database
 
