@@ -9,23 +9,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 try:
-    import MySQLdb
-except ModuleNotFoundError:
     import pymysql
 
     pymysql.install_as_MySQLdb()
-    import MySQLdb
+except ModuleNotFoundError:
+    pymysql = None
 
 ADMIN_EMAIL    = 'admin@portal.com'
 ADMIN_PASSWORD = 'Admin@123'   # Change this!
 ADMIN_NAME     = 'Super Admin'
 
 def main():
-    conn = MySQLdb.connect(
+    if pymysql is None:
+        raise RuntimeError("PyMySQL is not installed. Run: pip install -r requirements.txt")
+
+    conn = pymysql.connect(
         host=os.getenv('MYSQL_HOST', 'localhost'),
         user=os.getenv('MYSQL_USER', 'root'),
-        passwd=os.getenv('MYSQL_PASSWORD', ''),
-        db=os.getenv('MYSQL_DB', 'smart_donation_portal'),
+        password=os.getenv('MYSQL_PASSWORD', ''),
+        database=os.getenv('MYSQL_DB', 'smart_donation_portal'),
         port=int(os.getenv('MYSQL_PORT', '4000')),
     )
     cur = conn.cursor()

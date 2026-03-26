@@ -1,9 +1,9 @@
 try:
-    import MySQLdb  # noqa: F401
-except ModuleNotFoundError:
     import pymysql
 
     pymysql.install_as_MySQLdb()
+except ModuleNotFoundError:
+    pass
 
 from flask_mysqldb import MySQL
 

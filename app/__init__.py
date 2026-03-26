@@ -1,3 +1,10 @@
+try:
+    import pymysql
+
+    pymysql.install_as_MySQLdb()
+except ModuleNotFoundError:
+    pass
+
 import os
 from flask import Flask
 from flask_login import LoginManager
