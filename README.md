@@ -220,7 +220,7 @@ Flask-WTF==1.2.1
 Flask-MySQLdb==1.0.1
 Werkzeug==3.0.1
 WTForms==3.1.1
-mysqlclient==2.2.0
+PyMySQL==1.1.0
 python-dotenv==1.0.0
 Pillow==10.1.0
 ```
@@ -233,7 +233,7 @@ Pillow==10.1.0
 → Check MySQL is running and `.env` credentials are correct.
 
 **`ModuleNotFoundError: No module named 'MySQLdb'`**  
-→ `pip install mysqlclient` (requires `libmysqlclient-dev` on Linux).
+→ Install dependencies from `requirements.txt` (this project uses `PyMySQL`, which provides a `MySQLdb`-compatible shim).
 
 **File uploads not showing**  
 → Ensure the `app/static/uploads/` subfolders exist (auto-created on startup).
